@@ -2,6 +2,27 @@ import threading
 import time
 from threading import Thread
 
+"""
+Elevator simulation:
+
+The code simulates an elevator system in a building/office
+in which there is one elevator that picks up users
+and takes passengers up and down.
+
+With the option of course to expand to multiple elevators with a management department to monitor all elevators.
+The elevator actually starts from floor 0 as a start
+and picks up users in a THREE-way manner. A user enters the elevator and meanwhile user 2 orders the elevator and the elevator will pick him up as well.
+Normal usage behavior - simulation:
+-User 2 enters the elevator - his destination is floor 7
+-The elevator starts to go up
+-The elevator stops on floor 2 User 2 enters his destination is floor 4
+-The elevator continues to floor 4, stops
+-User 2 exits the elevator
+-If there are no additional orders, the elevator continues to floor 7 without further stops.
+
+It is possible that a user will be waiting on floor 7 who wants to go down to floor 3
+The elevator will go down, pick up users on the way (or not) and repeat.
+"""
 
 class User:
     def __init__(self, name, destination_floor, start_floor):
@@ -105,3 +126,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
