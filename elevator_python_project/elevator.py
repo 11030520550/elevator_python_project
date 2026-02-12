@@ -74,7 +74,7 @@ class Elevator(threading.Thread):
                 print(f"elevator in motion {'↑' if self.direction == 1 else '↓'} - floor: {self.current_floor} [🔴]")
                 time.sleep(1)
 
-            print(f"מעלית עצרה בקומה {self.current_floor} [🟢]")
+            print(f"elevator stopped at floor {self.current_floor} [🟢]")
             self.handle_floor()
             time.sleep(1)
 
@@ -126,5 +126,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
