@@ -71,7 +71,7 @@ class Elevator(threading.Thread):
 
             while self.current_floor != next_floor:
                 self.current_floor += 1 if self.direction == 1 else -1
-                print(f"מעלית בתנועה {'↑' if self.direction == 1 else '↓'} - קומה: {self.current_floor} [🔴]")
+                print(f"elevator in motion {'↑' if self.direction == 1 else '↓'} - floor: {self.current_floor} [🔴]")
                 time.sleep(1)
 
             print(f"מעלית עצרה בקומה {self.current_floor} [🟢]")
@@ -81,14 +81,14 @@ class Elevator(threading.Thread):
     def handle_floor(self):
         for user in self.waiting_passengers[:]:
             if user.start_floor == self.current_floor:
-                print(f"{user.name} נכנס למעלית, יעדו: {user.destination_floor}")
+                print(f"{user.name} entering thr elevator, destination: {user.destination_floor}")
                 self.passengers.append(user)
                 self.waiting_passengers.remove(user)
                 self.destination.add(user.destination_floor)
 
         for passenger in self.passengers[:]:
             if passenger.destination_floor == self.current_floor:
-                print(f"{passenger.name} יצא מהמעלית")
+                print(f"{passenger.name} get out of the elevator")
                 self.passengers.remove(passenger)
 
         if self.current_floor in self.destination:
@@ -117,7 +117,7 @@ def main():
         while True:
             time.sleep(1)
     except KeyboardInterrupt:
-        print("עצירת המעלית...")
+        print("stopping the elevator")
         elevator.running = False
         elevator.join()
 
@@ -126,4 +126,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
