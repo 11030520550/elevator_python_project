@@ -3,129 +3,145 @@ import time
 from threading import Thread
 
 """
-Elevator simulation:
+Elevator Simulation Project
 
-The code simulates an elevator system in a building/office
-in which there is one elevator that picks up users
-and takes passengers up and down.
+This program simulates an elevator system in a multi-floor building.
+Users request the elevator from different floors and select destination floors.
+The elevator moves according to pending requests, picking up and dropping off
+passengers along the way.
 
-With the option of course to expand to multiple elevators with a management department to monitor all elevators.
-The elevator actually starts from floor 0 as a start
-and picks up users in a THREE-way manner. A user enters the elevator and meanwhile user 2 orders the elevator and the elevator will pick him up as well.
-Normal usage behavior - simulation:
--User 2 enters the elevator - his destination is floor 7
--The elevator starts to go up
--The elevator stops on floor 2 User 2 enters his destination is floor 4
--The elevator continues to floor 4, stops
--User 2 exits the elevator
--If there are no additional orders, the elevator continues to floor 7 without further stops.
+The system is implemented using Object-Oriented Programming (OOP),
+where users and the elevator are represented as classes.
+The elevator runs on a separate thread to simulate continuous movement
+independently from the main program.
 
-It is possible that a user will be waiting on floor 7 who wants to go down to floor 3
-The elevator will go down, pick up users on the way (or not) and repeat.
 """
 
+
+#Class representing a user of the elevator
 class User:
     def __init__(self, name, destination_floor, start_floor):
-        self.name = name
-        self.destination_floor = destination_floor
-        self.start_floor = start_floor
-        self.in_elevator = False
+        self.name = name  #User name
+        self.destination_floor = destination_floor  #Target floor
+        self.start_floor = start_floor  #Starting floor
+        self.in_elevator = False  #Indicates if the user is inside the elevator
 
 
-
+#Elevator class that runs as a separate thread
 class Elevator(threading.Thread):
     def __init__(self, num_floors):
         super().__init__()
-        self.num_floors = num_floors
-        self.destination = set()
-        self.waiting_passengers = []
-        self.current_floor = 0
-        self.passengers = []
-        self.direction = 1 # 1=up, -1=down
+        self.num_floors = num_floors  #Total number of floors in the building
+        self.destination = set()  #Set of floors where the elevator needs to stop
+        self.waiting_passengers = []  #Users waiting for the elevator
+        self.current_floor = 0  #Current floor of the elevator
+        self.passengers = []  #Users currently inside the elevator
+        self.direction = 1  #Movement direction: 1 = up, -1 = down
+        self.running = True  #Controls elevator operation
 
-        self.running = True
 
-
+    #Adds a new user to the system
     def add_user(self, user):
-        self.waiting_passengers.append(user)
-        self.destination.add(user.start_floor)
+        self.waiting_passengers.append(user)  #Add user to waiting list
+        self.destination.add(user.start_floor)  #Add starting floor as a stop
 
 
+    #Main loop executed by the thread
     def run(self):
         while self.running:
+
+            #If there are no destinations,wait
             if not self.destination:
                 time.sleep(2)
                 continue
 
-            if self.direction == 1:
-                next_floors = sorted([f for f in self.destination if f >= self.current_floor])
+            #Choose next destination based on current direction
+            if self.direction == 1:  #Moving up
+                next_floors = sorted(
+                    [f for f in self.destination if f >= self.current_floor]
+                )
                 if not next_floors:
-                    self.direction = -1
+                    self.direction = -1  #Change direction
                     continue
-            else:
-                next_floors = sorted([f for f in self.destination if f <= self.current_floor], reverse=True)
+            else:  #Moving down
+                next_floors = sorted(
+                    [f for f in self.destination if f <= self.current_floor],
+                    reverse=True
+                )
                 if not next_floors:
-                    self.direction = 1
+                    self.direction = 1  #Change direction
                     continue
-            next_floor = next_floors[0]
 
+            next_floor = next_floors[0]  #Closest floor in current direction
+
+            #Move floor by floor until reaching destination
             while self.current_floor != next_floor:
                 self.current_floor += 1 if self.direction == 1 else -1
-                print(f"elevator in motion {'↑' if self.direction == 1 else '↓'} - floor: {self.current_floor} [🔴]")
+                print(f"Elevator moving {'↑' if self.direction == 1 else '↓'} - floor: {self.current_floor} [🔴]")
                 time.sleep(1)
 
-            print(f"elevator stopped at floor {self.current_floor} [🟢]")
+            #Elevator reached the floor
+            print(f"Elevator stopped at floor {self.current_floor} [🟢]")
             self.handle_floor()
             time.sleep(1)
 
+
+    #Handles passengers entering and exiting at current floor
     def handle_floor(self):
+
+        #Let waiting passengers enter the elevator
         for user in self.waiting_passengers[:]:
             if user.start_floor == self.current_floor:
-                print(f"{user.name} entering thr elevator, destination: {user.destination_floor}")
+                print(f"{user.name} entered the elevator, destination: {user.destination_floor}")
                 self.passengers.append(user)
                 self.waiting_passengers.remove(user)
                 self.destination.add(user.destination_floor)
 
+        #Let passengers exit if this is their destination
         for passenger in self.passengers[:]:
             if passenger.destination_floor == self.current_floor:
-                print(f"{passenger.name} get out of the elevator")
+                print(f"{passenger.name} exited the elevator")
                 self.passengers.remove(passenger)
 
+        #Remove current floor from destinations list
         if self.current_floor in self.destination:
             self.destination.remove(self.current_floor)
 
 
+    #Prints current passengers inside the elevator
     def show_users(self):
         for user in self.passengers:
             print(user.name, user.destination_floor, user.current_floor)
 
 
+#Main function that starts the simulation
 def main():
 
-    elevator = Elevator(num_floors=10)
-    elevator.start()
+    elevator = Elevator(num_floors=10)  # Create elevator with 10 floors
+    elevator.start()  # Start elevator thread
 
-    user_1 = User("user_1", start_floor=0, destination_floor=7)
-    user_2 = User("user2", start_floor=3, destination_floor=9)
-    user_3 = User("user_3", start_floor=2, destination_floor=1)
+    # Create users
+    user_1 = User("Robert", start_floor=0, destination_floor=7)
+    user_2 = User("Julia", start_floor=3, destination_floor=9)
+    user_3 = User("Pier", start_floor=2, destination_floor=1)
 
+
+    #Add users to the system
     elevator.add_user(user_1)
     elevator.add_user(user_2)
     elevator.add_user(user_3)
 
+
+    #Run until manual interruption
     try:
         while True:
             time.sleep(1)
     except KeyboardInterrupt:
-        print("stopping the elevator")
+        print("Stopping elevator...")
         elevator.running = False
         elevator.join()
 
 
-
-
+#Program entry point
 if __name__ == "__main__":
     main()
-
-
-
