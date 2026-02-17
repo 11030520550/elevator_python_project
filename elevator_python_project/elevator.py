@@ -111,7 +111,7 @@ class Elevator(threading.Thread):
     #Prints current passengers inside the elevator
     def show_users(self):
         for user in self.passengers:
-            print(user.name, user.destination_floor, user.current_floor)
+            print(user.name, user.destination_floor, user.start_floor)
 
 
 #Main function that starts the simulation
@@ -145,3 +145,4 @@ def main():
 #Program entry point
 if __name__ == "__main__":
     main()
+
